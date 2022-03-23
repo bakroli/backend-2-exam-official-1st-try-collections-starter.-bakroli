@@ -28,6 +28,6 @@ public class License {
     }
 
     public int getTimeLeftUntilExpiration(LocalDate now) {
-        return 0;
+        return getOffDate().getYear() - now.getYear();
     }
 }

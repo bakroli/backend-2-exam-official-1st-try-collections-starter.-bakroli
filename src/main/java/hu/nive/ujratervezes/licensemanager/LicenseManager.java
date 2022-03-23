@@ -3,6 +3,7 @@ package hu.nive.ujratervezes.licensemanager;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LicenseManager {
     List<License> licenses = new ArrayList<>();
@@ -15,10 +16,10 @@ public class LicenseManager {
     }
 
     public List<License> findLicensesValidFor10MoreYears(LocalDate now) {
-        List<License> find = licenses.stream()
+        return licenses.stream()
+                .filter(n->n.getOffDate().isAfter(now))
                 .filter(n->n.getOffDate().isBefore(now.plusYears(10)))
                 .toList();
-        return new ArrayList<>(find);
     }
 
     public List<License> findExpiredLicenses(LocalDate now) {
@@ -28,7 +29,15 @@ public class LicenseManager {
     }
 
     public Map<LocalDate, Long> findExpiresNextYear(LocalDate now) {
-        return new HashMap<>();
+        return licenses.stream()
+                .filter(n->n.getOffDate().isAfter(now))
+                .filter(n->n.getOffDate().isBefore(now.plusYears(1)))
+                .collect(Collectors.toMap(
+                        License::getOffDate,
+                        v -> 1L,
+                        Long::sum,
+                        TreeMap::new
+                ));
     }
 
     public List<License> findLicensesWithUsers(Set<String> users) {
@@ -38,8 +47,6 @@ public class LicenseManager {
         return licenses.stream()
                 .filter(n->n.getUsers().containsAll(users))
                 .toList();
-
-        //return new ArrayList<>();
     }
 
     public Map<Month, List<String>> getNamesPerMonth() {
